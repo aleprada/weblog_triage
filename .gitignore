@@ -1,0 +1,7 @@
+#folder with datasets
+./datasets/
+#virtualenv
+/venv
+#pychar metadata
+./idea
+#config file with credentials

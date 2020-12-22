@@ -16,6 +16,11 @@ def low_freq_http_methods(method_freq_dict, log_request_list):
             #look for uncommon or fuzzed HTTP Methods
             print("looking for uncommon values")
 
+
+def low_freq_ips(ips_freq_dict, log_request_list):
+    print("looking for http")
+    #look for low frequency IPs
+
 def analyze_by_freq(log_request_list):
     freq_counter = FreqCounter(len(log_request_list))
     freq_counter.freq_analyzer(log_request_list)

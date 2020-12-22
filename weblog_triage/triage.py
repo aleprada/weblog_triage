@@ -1,18 +1,9 @@
 import argparse
 import os
-import re
 from weblog_triage.core.parser import LogRequest
+from weblog_triage.core.helper import FreqCounter
+from weblog_triage.investigation.frequency import analyze_by_freq
 from clfparser import CLFParser
-
-
-def find_http_method(line):
-    method_list = ['GET', 'CONNECT','HEAD','TRACE','POST', 'PUT','DELETE','PATCH',
-                   'OPTIONS','PROPFIND','PROPPATCH','COPY','MOVE','QUIT','LOCK','UNLOCK']
-    method_found = None
-    for method in method_list:
-        if re.search(method,line):
-            method_found = method
-    return method_found
 
 
 def parse_log(filepath):
@@ -48,6 +39,7 @@ def parse_log(filepath):
 
             print("Total log request objects: "+str(len(log_request_list)))
             print("Total log lines: "+str(len(log)))
+            return log_request_list
 
         except:
             print("[!] There was an error while reading the file.")
@@ -55,30 +47,13 @@ def parse_log(filepath):
     else:
         print("[!] The file doesn't exist")
 
-#To-DO MISP integration with PyMISP for IOCs
-# Parse IOCs from a CSV file.
-def parse_ioc(filepath):
-    return 0
-
-
-def look_for_attack_patterns():
-    return 0
-
-
-def look_for_ioc():
-    return 0
-
-
-def count_artifacts_frequency():
-    return 0
-
 
 def main():
     # Create ASCII ART
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--filepath", help="Path of the file to analyze.")
     parser.add_argument("-i", "--ioc", help="Look for indicators of compromise.", action="store_true")
-    parser.add_argument("-a", "--attacks", help="Look for patterns of common attacks such as XSS, SQLi, LFI,etc.",
+    parser.add_argument("-a", "--attacks", help="Look for investigation of common attacks such as XSS, SQLi, LFI,etc.",
                         action="store_true")
     parser.add_argument("-c", "--count",
                         help="Count artifacts such as IPs, domain names or HTTP status for finding anomalous behaviour.",
@@ -88,20 +63,26 @@ def main():
     args = parser.parse_args()
     if args.filepath:
         # capture exception of read file
-        lines = parse_log(args.filepath)
-        print(len(lines))
+        log_request_list = parse_log(args.filepath)
+        log_stats = FreqCounter(len(log_request_list))
+        print(len(log_request_list))
+        dict_ips = log_stats.ips_counter(log_request_list)
+        print(dict_ips)
     else:
         print("[!] Please, introduce the filepath of the log to analyze.")
 
     if args.ioc:
-        parse_ioc(args.ioc)
-        look_for_ioc()
+        #call IoCs analyzer
+        print("ioc")
     elif args.attacks:
-        look_for_attack_patterns()
+        #call attack patterns analyzer
+        print("attack patterns")
     elif args.count:
-        count_artifacts_frequency
+        #call frequency analyzers.
+        print("frequency")
 
 
 if __name__ == "__main__":
     # main()
-    parse_log("/home/alejandro.prada/VisualStudioProyects/weblogs_autotriage/datasets/logs/access_log_1")
+    log_request_list = parse_log("/home/alejandro.prada/VisualStudioProyects/weblogs_autotriage/datasets/logs/access_log_1")
+    analyze_by_freq(log_request_list)

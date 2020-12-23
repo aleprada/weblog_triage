@@ -5,3 +5,8 @@
 #pychar metadata
 .idea/
 #config file with credentials
+
+.pyc
+*.pyo
+.cpython
+__pycache__/

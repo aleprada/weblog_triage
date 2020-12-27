@@ -6,6 +6,7 @@ class AlertReason(Enum):
     DELETE = "A request using a DELETE HTTP method was found"
     UNCOMMON = "A request using an UNCOMMON HTTP method was found"
     FREQ_IP = "This IP is a low frequency request"
+    USER_AGENT = "This User Agent is suspicious and it has low freq pattern."
 
 
 class AlertType(Enum):
@@ -14,6 +15,7 @@ class AlertType(Enum):
     Pattern = "This investigation approach is focused on looking for popular attack patterns such as XSS, SQLi, etc"
 
 
+#add number of times is repeated.
 class Alert():
     def __init__(self, type, reason, raw_request):
         self.type = type

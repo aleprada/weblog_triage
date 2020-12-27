@@ -86,4 +86,4 @@ if __name__ == "__main__":
     log_request_list = parse_log("/home/alejandro.prada/VisualStudioProyects/weblogs_autotriage/datasets/logs/access_log_1")
     alerts_freq = analyze_by_freq(log_request_list)
     for a in alerts_freq:
-        print(a)
+        print(a.raw_request)

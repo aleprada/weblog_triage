@@ -2,6 +2,9 @@
 /datasets/
 #virtualenv
 /venv
+
+#reports
+/reports/
 #pychar metadata
 .idea/
 #config file with credentials

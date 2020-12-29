@@ -21,6 +21,14 @@ def look_for_user_agents(user_agent, request_list):
     return result_list
 
 
+def look_for_low_byte_sizes(byte_size, request_list):
+    result_list = []
+    for r in request_list:
+        if r.size_request == byte_size:
+            a = Alert(AlertType.FREQUENCY, AlertReason.BYTE_SIZE, r.raw_request)
+            result_list.append(a)
+    return result_list
+
 #Look for PUT, DELETE and other non very used methods.
 def low_freq_http_methods(method_freq_dict, log_request_list):
     method_list = ['GET', 'CONNECT', 'HEAD', 'TRACE', 'POST', 'PUT', 'DELETE', 'PATCH',
@@ -30,15 +38,15 @@ def low_freq_http_methods(method_freq_dict, log_request_list):
     for req in log_request_list:
         if req.http_method is "PUT":
             #look for PUT requests and store them
-            a = Alert(AlertType.FREQUENCY, AlertReason.PUT,req)
+            a = Alert(AlertType.FREQUENCY, AlertReason.PUT,req.raw_request)
             alert_list.append(a)
         elif req.http_method is "DELETE":
             #look for DELETE request and store them
-            b = Alert(AlertType.FREQUENCY, AlertReason.DELETE, req)
+            b = Alert(AlertType.FREQUENCY, AlertReason.DELETE, req.raw_request)
             alert_list.append(b)
         elif req.http_method not in method_list:
             #look for uncommon or fuzzed HTTP Methods
-            c = Alert(AlertType.FREQUENCY, AlertReason.UNCOMMON, req)
+            c = Alert(AlertType.FREQUENCY, AlertReason.UNCOMMON, req.raw_request)
             alert_list.append(c)
         else:
             continue
@@ -78,15 +86,28 @@ def successful_http_request(log_request_list):
     print("\t[+] Looking for successful HTTP requests: Status Code 2XX")
     for r in log_request_list:
         if r.http_status.startswith("2"):
-            print(r.raw_request)
-            total_alert_list.append(r)
+            a = Alert(AlertType.FREQUENCY, AlertReason.SUCCESSFUL,r.raw_request)
+            total_alert_list.append(a)
     return total_alert_list
 
 
 
-#look for low frequency requests wit a low number of bytes
+#look for low frequency requests with a low number of bytes
 def byte_size(byte_size_freq_dict, log_request_list):
-    print("Not implemented Yet!")
+    total_alert_list = []
+    print("\t[+] Looking for low frequency requests with low byte size")
+    # look for low frequency User Agents
+    # loop dictionary and find out a good threshold for stuying requests.
+    for item, counter in byte_size_freq_dict.items():
+        try:
+            if counter < 60 and int(item) < 50:  # magic number. Better make it configurable. Frequency and size
+                alert_list = look_for_low_byte_sizes(item, log_request_list)
+                total_alert_list = total_alert_list + alert_list
+        except ValueError as e:
+            print("\t[!] Error casting the following size: "+str(e) + " "+item)
+            continue
+
+    return total_alert_list
 
 
 def analyze_by_freq(log_request_list):
@@ -97,7 +118,8 @@ def analyze_by_freq(log_request_list):
     alerts_ips = low_freq_ips(freq_counter.ips_freq_dict, log_request_list)
     alerts_success_status = successful_http_request(log_request_list)
     alerts_user_agent = low_freq_user_agents(freq_counter.user_agent_freq_dict, log_request_list)
-    total_alert_list = alerts_methods + alerts_ips + alerts_success_status + alerts_user_agent
+    alerts_byte_size = byte_size(freq_counter.size_request_freq_dict, log_request_list)
+    total_alert_list = alerts_methods + alerts_ips + alerts_success_status + alerts_user_agent + alerts_byte_size
     return total_alert_list
 
 

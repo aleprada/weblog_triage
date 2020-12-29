@@ -2,6 +2,7 @@ import argparse
 import os
 from weblog_triage.core.parser import LogRequest
 from weblog_triage.core.helper import FreqCounter
+from weblog_triage.core.reporting import create_report
 from weblog_triage.investigation.frequency import analyze_by_freq
 from clfparser import CLFParser
 
@@ -84,6 +85,5 @@ def main():
 if __name__ == "__main__":
     # main()
     log_request_list = parse_log("/home/alejandro.prada/VisualStudioProyects/weblogs_autotriage/datasets/logs/access_log_1")
-    alerts_freq = analyze_by_freq(log_request_list)
-    for a in alerts_freq:
-        print(a.raw_request)
+    alerts_list_freq = analyze_by_freq(log_request_list)
+    create_report(alerts_list_freq,"frequency")

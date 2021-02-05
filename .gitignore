@@ -2,6 +2,8 @@
 /datasets/
 #virtualenv
 /venv
+#build
+/build
 
 #reports
 /reports/

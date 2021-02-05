@@ -1,5 +1,48 @@
 from collections import Counter
+from clfparser import CLFParser
+from weblog_triage.core.parser import LogRequest
+import os
 import re
+
+
+def parse_log(filepath):
+    log_request_list = []
+    if os.path.exists(filepath):
+        try:
+            with open(filepath) as f:
+                log = f.readlines()
+                for line in log:
+                    clfDict = CLFParser.logDict(line.rstrip())
+                    ip = clfDict.get("h")
+                    timestamp = clfDict.get("t")
+                    request_splitted = clfDict.get("r").replace('"','').split(" ")
+                    status_request = clfDict.get("s")
+                    size_request = clfDict.get("b")
+                    referer = clfDict.get("Referer")
+                    user_agent = clfDict.get("Useragent")
+                    if len(request_splitted) > 1:
+                        method = request_splitted[0]
+                        url = request_splitted[1]
+                        log_request_line = LogRequest(ip=ip, timestamp=timestamp, url=url, http_method=method.replace('"',""),
+                                                      http_status=status_request, size_request=size_request,
+                                                      referer_url=referer, user_agent=user_agent, raw_request=line.rstrip())
+                    else:
+                        bad_request = clfDict.get("r").replace('"','')
+                        log_request_line = LogRequest(ip=ip, timestamp=timestamp, url=None, http_method=None,
+                                                      http_status=status_request, size_request=size_request,
+                                                      referer_url=referer, user_agent=user_agent, raw_request=line.rstrip())
+                        log_request_line.add_bad_method(bad_request)
+
+                    log_request_list.append(log_request_line)
+
+            return log_request_list
+
+        except IOError as e:
+            print("[!] There was an error while reading the file."+e.strerror)
+            print(line)
+    else:
+        print("[!] The file doesn't exist")
+        exit(1)
 
 
 def find_http_method(line):
@@ -10,10 +53,6 @@ def find_http_method(line):
         if re.search(method,line):
             method_found = method
     return method_found
-
-
-def find_request():
-    print("Nothing yet!")
 
 
 class FreqCounter():

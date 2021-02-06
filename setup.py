@@ -1,6 +1,6 @@
 from distutils.core import setup
 
-setup(name='Weblog Triage',
+setup(name='weblog_triage',
       version='1.0',
       description='A Python application for triaging web logs',
       author='Alejandro Prada',

@@ -1,13 +1,11 @@
 language: python
 python:
   - "3.6"
-  - "3.7"
-  - "3.8"
-  - "nightly"
 cache: pip
 before_install:
   - python -m pip install --upgrade pip
 install:
   - pip install -r requirements.txt
+  - pip install -e .
 script:
   - pytest  weblog_triage/tests/

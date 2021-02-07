@@ -1,4 +1,6 @@
-**Weblogs Autotriage** https://travis-ci.com/aleprada/weblog_triage.svg?branch=main
+**Weblogs Autotriage** 
+
+![Build Status](https://travis-ci.com/aleprada/weblog_triage.svg?branch=main)
 
 This project is based on the bash script showed on the course "[SDF:Weblog Forensics](https://www.udemy.com/course/sdf-weblog-forensics/)" by Michael Leclair, 
 the author of the [Surviving Digital Forensics](https://digitalforensicsurvivalpodcast.com/surviving-digital-forensics/) podcast.

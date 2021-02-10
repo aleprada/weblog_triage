@@ -6,7 +6,7 @@
 /build
 
 #reports
-/reports/
+weblog_triage/reports/
 #pychar metadata
 .idea/
 #config file with credentials

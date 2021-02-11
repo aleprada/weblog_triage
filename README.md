@@ -49,6 +49,6 @@ a new folder with the date and time each time the program is executed.
 
 **Possible next steps**
 * Performance enhancement
-* Reduce false positives.
+* Reduce false positives removing duplicated alerts.
 * Integration with S3 API
 * Integration with CloudWatch?

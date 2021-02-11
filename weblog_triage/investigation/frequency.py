@@ -109,7 +109,7 @@ def byte_size(byte_size_freq_dict, log_request_list):
                 alert_list = look_for_low_byte_sizes(item, log_request_list)
                 total_alert_list = total_alert_list + alert_list
         except ValueError as e:
-            print("[?] Error casting the following size: "+str(e) + " "+item)
+            print("\t [?] Error casting the following size: "+str(e) + " "+item)
             continue
 
     return total_alert_list

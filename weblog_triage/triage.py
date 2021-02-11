@@ -4,6 +4,8 @@ from weblog_triage.investigation.patterns import look_for_attack_patterns
 from weblog_triage.investigation.frequency import analyze_by_freq
 from weblog_triage.investigation.iocs import complete_ioc_analysis,analyze_iocs, look_for_ioc_in_misp
 from weblog_triage.core.reporting import create_report
+from weblog_triage.core.alerts import AlertType
+
 from sys import exit
 
 
@@ -27,19 +29,19 @@ def main():
     if args.iocs:
         iocs_file = args.iocs
         alerts_ioc= analyze_iocs(iocs_file, log_request_list)
-        create_report(alerts_ioc)
+        create_report(alerts_ioc, False, AlertType.IOCs)
         exit(0)
     elif args.misp:
         alert_attack_patterns = look_for_ioc_in_misp(False, log_request_list)
-        create_report(alert_attack_patterns)
+        create_report(alert_attack_patterns,  AlertType.IOCs)
         exit(0)
     elif args.attacks:
         alert_attack_patterns = look_for_attack_patterns(log_request_list)
-        create_report(alert_attack_patterns)
+        create_report(alert_attack_patterns, False, AlertType.Pattern)
         exit(0)
     elif args.count:
         alerts_list_freq = analyze_by_freq(log_request_list)
-        create_report(alerts_list_freq)
+        create_report(alerts_list_freq, False, AlertType.FREQUENCY)
         exit(0)
     elif args.total:
         total_alerts = []
@@ -53,7 +55,7 @@ def main():
         alerts_patterns = look_for_attack_patterns(log_request_list)
         if len(alerts_patterns)>0:
             total_alerts = total_alerts + alerts_patterns
-        create_report(total_alerts)
+        create_report(total_alerts,True)
         exit(0)
     else:
         print("[!] Invalid option. Please type -h for checking the valid options.")

@@ -1,4 +1,4 @@
-from pymisp import PyMISP, MISPEvent, MISPAttribute
+from pymisp import PyMISP, MISPEvent, MISPAttribute, PyMISPError
 from weblog_triage.core.alerts import Alert, AlertReason,AlertType
 from weblog_triage.config.config import config_parser
 import logging;
@@ -34,14 +34,17 @@ def look_for_misp_ioc(ioc, request):
 
 def look_for_ioc_in_misp(proxies_usage, log_request_list):
     result_list = []
-    if proxies_usage:
-        proxies = {}
-        proxies ['http'] = config_parser("MISP","proxy")
-        proxies ['https'] = config_parser("MISP","proxy")
-        misp = PyMISP(config_parser("MISP","url"), config_parser("MISP","key"), False, 'json', proxies=proxies)
-    else:
-        misp = PyMISP(config_parser("MISP","url"), config_parser("MISP","key"), False, 'json')
-
+    try:
+        if proxies_usage:
+            proxies = {}
+            proxies ['http'] = config_parser("MISP","proxy")
+            proxies ['https'] = config_parser("MISP","proxy")
+            misp = PyMISP(config_parser("MISP","url"), config_parser("MISP","key"), False, 'json', proxies=proxies)
+        else:
+            misp = PyMISP(config_parser("MISP","url"), config_parser("MISP","key"), False, 'json')
+    except PyMISPError:
+        print("\t [!] Error connecting to MISP instance. Check if your MISP instance it's up!")
+        return result_list
     logging.getLogger('pymisp').setLevel(logging.DEBUG)
     events = misp.events()
     print("[!] Total MISP events:"+ str(len(events)))
@@ -64,14 +67,11 @@ def look_for_ioc_in_misp(proxies_usage, log_request_list):
 
     return result_list
 
+
 def complete_ioc_analysis(iocs_filepath, log_request_list, proxies_usage):
-    print("[*] Analysis of IoC's ")
-    print("[!] IoCs found: ")
     result_ioc_list = analyze_iocs(iocs_filepath, log_request_list)
-    print("\t [!] in IoCs list : " + str(len(result_ioc_list)))
     if len(config_parser("MISP", "url"))> 0:
         result_misp_iocs = look_for_ioc_in_misp(proxies_usage, log_request_list)
-        print("\t [!] in MISP : " + str(len(result_misp_iocs)))
     return result_ioc_list + result_misp_iocs
 
 

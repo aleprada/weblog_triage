@@ -1,6 +1,6 @@
 import os
 import datetime
-from weblog_triage.core.alerts import AlertReason
+from weblog_triage.core.alerts import AlertReason, AlertType
 
 def create_folder(path,name):
     try:
@@ -43,27 +43,31 @@ def freq_report_summary(path,freq_counter):
         print("Exception! :" + str(e))
 
 
-def create_report(alert_list):
-    path_base = init_report()
-    freq_path_file = path_base+"frequency/"
-    iocs_path_file = path_base+"iocs/"
-    attacks_path_file = path_base+"attack_patterns/"
+def create_report_freq(alert_list, freq_path_file):
     for a in alert_list:
         if a.reason == (AlertReason.UNCOMMON or AlertReason.DELETE or AlertReason.PUT):
-            add_alert_into_file(freq_path_file+"uncommon_methods.txt",a)
+            add_alert_into_file(freq_path_file + "uncommon_methods.txt", a)
         elif a.reason == AlertReason.SUCCESSFUL:
-            add_alert_into_file(freq_path_file+"successful_2xx.txt",a)
+            add_alert_into_file(freq_path_file + "successful_2xx.txt", a)
         elif a.reason == AlertReason.USER_AGENT:
-            add_alert_into_file(freq_path_file+"user_agent_suspicious.txt",a)
+            add_alert_into_file(freq_path_file + "user_agent_suspicious.txt", a)
         elif a.reason == AlertReason.FREQ_IP:
-            add_alert_into_file(freq_path_file+"low_freq_ips.txt",a)
+            add_alert_into_file(freq_path_file + "low_freq_ips.txt", a)
         elif a.reason == AlertReason.BYTE_SIZE:
-            add_alert_into_file(freq_path_file+"low_freq_low_bytes.txt",a)
-        elif a.reason == (AlertReason.IOC):
+            add_alert_into_file(freq_path_file + "low_freq_low_bytes.txt", a)
+
+
+def create_report_iocs(alert_list, iocs_path_file):
+    for a in alert_list:
+        if a.reason == (AlertReason.IOC):
             add_alert_into_file(iocs_path_file + "iocs.txt", a)
         elif a.reason == (AlertReason.MISP):
             add_alert_into_file(iocs_path_file + "misp.txt", a)
-        elif a.reason == (AlertReason.SQLI):
+
+
+def create_report_attack_pattern(alert_list, attacks_path_file):
+    for a in alert_list:
+        if a.reason == (AlertReason.SQLI):
             add_alert_into_file(attacks_path_file + "sqli.txt", a)
         elif a.reason == (AlertReason.XSS):
             add_alert_into_file(attacks_path_file + "xss.txt", a)
@@ -84,7 +88,25 @@ def create_report(alert_list):
         elif a.reason == (AlertReason.LONG_URL):
             add_alert_into_file(attacks_path_file + "long_url.txt", a)
 
+
+def create_report(alert_list, complete_analysis, type=False):
+    path_base = init_report()
+    freq_path_file = path_base + "frequency/"
+    iocs_path_file = path_base + "iocs/"
+    attacks_path_file = path_base + "attack_patterns/"
+    if complete_analysis == False:
+        if type == AlertType.FREQUENCY:
+            create_report_freq(alert_list, freq_path_file)
+        elif type == AlertType.IOCs:
+            create_report_iocs(alert_list, iocs_path_file)
+        elif type == AlertType.Pattern:
+            create_report_attack_pattern(alert_list, attacks_path_file)
+    else:
+        create_report_freq(alert_list, freq_path_file)
+        create_report_iocs(alert_list, iocs_path_file)
+        create_report_attack_pattern(alert_list, attacks_path_file)
     print("[*] Successfully report created at " +path_base)
+
 
 
 
